@@ -90,8 +90,15 @@ jobs:
     - name: Download kernel source
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
-
+        #git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
+        wget https://github.com/MotorolaMobilityLLC/kernel-msm/archive/refs/tags/MMI-S1RXS32.50-13-25.zip
+        unzip -q MMI-S1RXS32.50-13-25.zip
+        mv kernel-msm-MMI-S1RXS32.50-13-25 android-kernel
+        chmod -R 777 android-kernel
+        wget -P android-kernel/arch/arm64/configs/vendor https://cloudreve.hc.ahau.fun/f/Ootv/lahaina-qgki_defconfig
+        echo "下载lahaina-qgki_defconfig成功，内容为："
+        cat android-kernel/arch/arm64/configs/vendor/lahaina-qgki_defconfig
+        
     - name: Download source boot image
       if: env.BUILD_BOOT_IMG == 'true'
       run: |

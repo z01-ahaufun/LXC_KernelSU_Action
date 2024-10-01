@@ -98,7 +98,10 @@ jobs:
         wget -P android-kernel/arch/arm64/configs/vendor https://cloudreve.hc.ahau.fun/f/Ootv/lahaina-qgki_defconfig
         echo "下载lahaina-qgki_defconfig成功，内容为："
         cat android-kernel/arch/arm64/configs/vendor/lahaina-qgki_defconfig
-        sed 's/dts $(DTC) FORCE/dts FORCE/' android-kernel/scripts/Makefile.lib
+        #sed 's/dts $(DTC) FORCE/dts FORCE/' android-kernel/scripts/Makefile.lib
+        rm -rf android-kernel/scripts/Makefile.lib
+        wget -P android-kernel/scripts https://cloudreve.hc.ahau.fun/f/P9u3/Makefile.lib
+        chmod 777 android-kernel/scripts/Makefile.lib
         
     - name: Download source boot image
       if: env.BUILD_BOOT_IMG == 'true'

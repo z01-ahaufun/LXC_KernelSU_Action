@@ -90,24 +90,21 @@ jobs:
     - name: Download kernel source
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        #git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
-        wget https://github.com/MotorolaMobilityLLC/kernel-msm/archive/refs/tags/MMI-S1RXS32.50-13-25.zip
-        unzip -q MMI-S1RXS32.50-13-25.zip
-        mv kernel-msm-MMI-S1RXS32.50-13-25 android-kernel
-        chmod -R 777 android-kernel
-        wget -P android-kernel/arch/arm64/configs/vendor https://cloudreve.hc.ahau.fun/f/Ootv/lahaina-qgki_defconfig
-        echo "下载lahaina-qgki_defconfig成功，内容为："
-        cat android-kernel/arch/arm64/configs/vendor/lahaina-qgki_defconfig
-        #sed 's/dts $(DTC) FORCE/dts FORCE/' android-kernel/scripts/Makefile.lib
-        rm -rf android-kernel/scripts/Makefile.lib
-        wget -P android-kernel/scripts https://cloudreve.hc.ahau.fun/f/P9u3/Makefile.lib
-        chmod 777 android-kernel/scripts/Makefile.lib
+        echo "开始下载内核源码"
+        wget https://github.ahau.fun/MotorolaMobilityLLC/kernel-msm/archive/refs/tags/MMI-S3RXC32.33-8-25.zip
+        unzip MMI-S3RXC32.33-8-25.zip
+        rm -rf MMI-S3RXC32.33-8-25.zip
+        mv kernel-msm-MMI-S3RXC32.33-8-25 android-kernel
+        sed 's/dts $(DTC) FORCE/dts FORCE/' android-kernel/scripts/Makefile.lib
+        echo "下载内核源码结束"
         
     - name: Download source boot image
       if: env.BUILD_BOOT_IMG == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
         wget -O boot-source.img ${{ env.SOURCE_BOOT_IMAGE }}
+        $GITHUB_WORKSPACE/kernel_workspace/android-kernel/scripts/extract-ikconfig boot-source.img > xpeng_new_defconfig
+        mv xpeng_new_defconfig $GITHUB_WORKSPACE/kernel_workspace/android-kernel/arch/arm64/configs/
         if [ -f boot-source.img ]; then
             echo "FORMAT_MKBOOTING=$(echo `tools/unpack_bootimg.py --boot_img=boot-source.img --format mkbootimg`)" >> $GITHUB_ENV
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
@@ -207,7 +204,7 @@ jobs:
           export KSU_EXPECTED_SIZE=${{ env.KSU_EXPECTED_SIZE }}
           export KSU_EXPECTED_HASH=${{ env.KSU_EXPECTED_HASH }}
         fi 
-        make -j$(nproc --all) DTC_OVERLAY_TEST_EXT=ufdt_apply_overlay CONFIG_BUILD_ARM64_DT_OVERLAY=y CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- ${{ env.KERNEL_CONFIG }}
+        make -j$(nproc --all) DTC_OVERLAY_TEST_EXT=ufdt_apply_overlay CONFIG_BUILD_ARM64_DT_OVERLAY=y CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- xpeng_new_defconfig
         if [ ${{ env.ENABLE_CCACHE }} = true ]; then
             make -j$(nproc --all) DTC_OVERLAY_TEST_EXT=ufdt_apply_overlay CONFIG_BUILD_ARM64_DT_OVERLAY=y CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- 
         else

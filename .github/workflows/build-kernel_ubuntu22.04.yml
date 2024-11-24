@@ -98,7 +98,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
         git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
-        wget https://cloudreve.hc.ahau.fun/f/JWcK/s30.config
+        wget https://raw.githubusercontent.com/z01-ahaufun/LXC_KernelSU_Action/refs/heads/main/s30.config
         mv s30.config android-kernel/arch/arm64/configs/vendor/motos30_stock_defconfig
 
     - name: Download source boot image
